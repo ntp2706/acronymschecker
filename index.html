@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acronym Checker</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      color: #333;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 300px;
+      }
+    }
+
+    /* Card styles */
+    .card {
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-content {
+      padding: 1.5rem;
+    }
+
+    .card-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #eee;
+    }
+
+    /* Form elements */
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+
+    .space-y-6 > * + * {
+      margin-top: 1.5rem;
+    }
+
+    .upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .upload-icon {
+      width: 3rem;
+      height: 3rem;
+      margin: 0 auto 0.5rem;
+      color: #666;
+    }
+
+    .upload-text {
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .slider-container {
+      margin-top: 1rem;
+    }
+
+    .slider-label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .slider {
+      width: 100%;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+    }
+
+    button {
+      display: inline-block;
+      padding: 0.75rem 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #4CAF50;
+    }
+
+    button:disabled {
+      background-color: #7dac7e;
+      cursor: not-allowed;
+    }
+
+    button.outline {
+      background-color: transparent;
+      color: #4CAF50;
+      border: 1px solid #4CAF50;
+    }
+
+    button.outline:hover {
+      background-color: rgba(37, 99, 235, 0.1);
+    }
+
+    /* Checker display */
+    .checker-display {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .Acronym {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .instruction {
+      color: #666;
+    }
+
+    /* Timer */
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #f59e0b;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 1rem;
+      border-radius: 0.25rem;
+      margin-top: 1rem;
+    }
+
+    .alert-default {
+      background-color: #e0f2fe;
+      color: #4CAF50;
+    }
+
+    .alert-error {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .alert-success {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    /* Stats */
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-value {
+      font-weight: bold;
+    }
+
+    .border-t {
+      border-top: 1px solid #eee;
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .icon-check {
+      color: #22c55e;
+    }
+
+    .icon-x {
+      color: #ef4444;
+    }
+
+    .icon-clock {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Acronym Checker</h1>
+    
+    <div class="grid">
+      <div class="space-y-6">
+        <!-- Setup Card (visible before checker starts) -->
+        <div id="setup-card" class="card">
+          <div class="card-header">
+            <div class="card-title">Upload CSV File</div>
+          </div>
+          <div class="card-content space-y-4">
+            <div class="upload-area" id="upload-area">
+              <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <input type="file" id="csv-upload" class="file-input" accept=".csv">
+              <button id="select-file-btn">Select File</button>
+            </div>
+
+            <div class="slider-container">
+              <label for="time-slider" class="slider-label">Time per word: <span id="time-value">10</span> seconds</label>
+              <input type="range" id="time-slider" class="slider" min="5" max="30" step="1" value="10">
+            </div>
+
+            <div id="feedback" class="alert" style="display: none;"></div>
+          </div>
+          <div class="card-footer">
+            <button id="start-btn" disabled>Start</button>
+          </div>
+        </div>
+
+        <!-- Checker Card (visible during checker) -->
+        <div id="checker-card" class="card" style="display: none;">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Current Acronym</span>
+              <div class="timer">
+                <svg class="icon-clock" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="time-left">10s</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-content space-y-6">
+            <div class="checker-display">
+              <h2 id="current-Acronym" class="Acronym"></h2>
+              <p class="instruction">Enter the full form</p>
+            </div>
+
+            <form id="answer-form" class="space-y-4">
+              <input type="text" id="user-answer" placeholder="Enter your answer..." autocomplete="off">
+              <button type="submit">Check</button>
+            </form>
+
+            <div id="checker-feedback" class="alert" style="display: none;"></div>
+          </div>
+          <div class="card-footer">
+            <button id="end-btn" class="outline">End Checker</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Card -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Statistics</div>
+          </div>
+          <div class="card-content">
+            <div class="space-y-4">
+              <div class="stat-item">
+                <div class="stat-label">
+                  <svg class="icon icon-check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Correct:</span>
+                </div>
+                <span id="correct-count" class="stat-value">0</span>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-label">
+                  <svg class="icon icon-x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>Incorrect:</span>
+                </div>
+                <span id="incorrect-count" class="stat-value">0</span>
+              </div>
+              
+              <div class="stat-item border-t">
+                <span>Total:</span>
+                <span id="total-count" class="stat-value">0</span>
+              </div>
+              
+              <div id="accuracy-container" class="stat-item border-t" style="display: none;">
+                <span>Accuracy:</span>
+                <span id="accuracy" class="stat-value">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Checker state
+    let csvData = [];
+    let isStarted = false;
+    let currentItem = null;
+    let timePerWord = 10;
+    let timeLeft = 0;
+    let timer = null;
+    let stats = { correct: 0, incorrect: 0, total: 0 };
+
+    // DOM Elements
+    const setupCard = document.getElementById('setup-card');
+    const checkerCard = document.getElementById('checker-card');
+    const fileInput = document.getElementById('csv-upload');
+    const selectFileBtn = document.getElementById('select-file-btn');
+    const timeSlider = document.getElementById('time-slider');
+    const timeValue = document.getElementById('time-value');
+    const startBtn = document.getElementById('start-btn');
+    const endBtn = document.getElementById('end-btn');
+    const feedback = document.getElementById('feedback');
+    const checkerFeedback = document.getElementById('checker-feedback');
+    const currentAcronym = document.getElementById('current-Acronym');
+    const timeLeftElement = document.getElementById('time-left');
+    const answerForm = document.getElementById('answer-form');
+    const userAnswerInput = document.getElementById('user-answer');
+    const correctCount = document.getElementById('correct-count');
+    const incorrectCount = document.getElementById('incorrect-count');
+    const totalCount = document.getElementById('total-count');
+    const accuracyContainer = document.getElementById('accuracy-container');
+    const accuracy = document.getElementById('accuracy');
+    const uploadArea = document.getElementById('upload-area');
+
+    // Event Listeners
+    selectFileBtn.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent event from bubbling up to the upload area
+      fileInput.click();
+    });
+    
+    uploadArea.addEventListener('click', function(e) {
+      // Only trigger file input if the click was directly on the upload area (not on the button)
+      if (e.target === uploadArea || e.target.tagName === 'SVG' || e.target.tagName === 'path' || e.target.tagName === 'P') {
+        fileInput.click();
+      }
+    });
+    
+    fileInput.addEventListener('change', handleFileUpload);
+    timeSlider.addEventListener('input', updateTimeValue);
+    startBtn.addEventListener('click', startChecker);
+    endBtn.addEventListener('click', resetChecker);
+    answerForm.addEventListener('submit', checkAnswer);
+
+    // Functions
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        const parsedData = [];
+
+        lines.forEach((line) => {
+          if (line.trim()) {
+            const [Acronym, fullForm] = line.split(',').map(item => item.trim());
+            if (Acronym && fullForm) {
+              parsedData.push({ Acronym, fullForm });
+            }
+          }
+        });
+
+        csvData = parsedData;
+        showFeedback(`Uploaded ${parsedData.length} Acronyms`, 'default');
+        startBtn.disabled = parsedData.length === 0;
+      };
+      reader.readAsText(file);
+    }
+
+    function updateTimeValue() {
+      timePerWord = parseInt(timeSlider.value);
+      timeValue.textContent = timePerWord;
+    }
+
+    function startChecker() {
+      if (csvData.length === 0) {
+        showFeedback('Please upload a CSV file before starting', 'error');
+        return;
+      }
+
+      isStarted = true;
+      setupCard.style.display = 'none';
+      checkerCard.style.display = 'block';
+      stats = { correct: 0, incorrect: 0, total: 0 };
+      updateStats();
+      showNextWord();
+      userAnswerInput.focus();
+    }
+
+    function showNextWord() {
+      if (csvData.length === 0) return;
+
+      // Get random item
+      const randomIndex = Math.floor(Math.random() * csvData.length);
+      currentItem = csvData[randomIndex];
+      currentAcronym.textContent = currentItem.Acronym;
+      userAnswerInput.value = '';
+      timeLeft = timePerWord;
+      timeLeftElement.textContent = timeLeft + 's';
+      checkerFeedback.style.display = 'none';
+
+      // Reset and start timer
+      if (timer) {
+        clearInterval(timer);
+      }
+
+      timer = setInterval(() => {
+        timeLeft--;
+        timeLeftElement.textContent = timeLeft + 's';
+        
+        if (timeLeft <= 0) {
+          handleTimeout();
+        }
+      }, 1000);
+    }
+
+    function handleTimeout() {
+      if (timer) {
+        clearInterval(timer);
+      }
+      
+      stats.incorrect++;
+      stats.total++;
+      updateStats();
+      
+      showCheckerFeedback(`Time's up! The correct answer is: ${currentItem.fullForm}`, 'error');
+      
+      setTimeout(showNextWord, 2000);
+    }
+
+    function checkAnswer(e) {
+      e.preventDefault();
+      
+      if (!currentItem || !isStarted) return;
+      
+      if (timer) {
+        clearInterval(timer);
+      }
+      
+      const userAnswer = userAnswerInput.value.trim().toLowerCase();
+      const correctAnswer = currentItem.fullForm.trim().toLowerCase();
+      const isCorrect = userAnswer === correctAnswer;
+      
+      if (isCorrect) {
+        stats.correct++;
+      } else {
+        stats.incorrect++;
+      }
+      stats.total++;
+      updateStats();
+      
+      showCheckerFeedback(
+        isCorrect 
+          ? 'Correct!' 
+          : `Incorrect. The correct answer is: ${currentItem.fullForm}`,
+        isCorrect ? 'success' : 'error'
+      );
+      
+      setTimeout(showNextWord, isCorrect ? 1000 : 2000);
+    }
+
+    function resetChecker() {
+      if (timer) {
+        clearInterval(timer);
+      }
+      isStarted = false;
+      currentItem = null;
+      setupCard.style.display = 'block';
+      checkerCard.style.display = 'none';
+      checkerFeedback.style.display = 'none';
+    }
+
+    function showFeedback(message, type) {
+      feedback.textContent = message;
+      feedback.className = 'alert alert-' + type;
+      feedback.style.display = 'block';
+    }
+
+    function showCheckerFeedback(message, type) {
+      checkerFeedback.textContent = message;
+      checkerFeedback.className = 'alert alert-' + type;
+      checkerFeedback.style.display = 'block';
+    }
+
+    function updateStats() {
+      correctCount.textContent = stats.correct;
+      incorrectCount.textContent = stats.incorrect;
+      totalCount.textContent = stats.total;
+      
+      if (stats.total > 0) {
+        const accuracyValue = Math.round((stats.correct / stats.total) * 100);
+        accuracy.textContent = accuracyValue + '%';
+        accuracyContainer.style.display = 'flex';
+      } else {
+        accuracyContainer.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
